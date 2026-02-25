@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PriceIt - Airbnb Pricing Tool</title>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+        <style>
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --bg: #f7f7f7;
+                --surface: #ffffff;
+                --surface2: #efefef;
+                --border: #dddddd;
+                --accent: #ff385c;
+                --accent-dim: #e0001b;
+                --text: #222222;
+                --text-muted: #717171;
+                --text-dim: #b0b0b0;
+                --success: #008a05;
+                --radius: 8px;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family: 'DM Sans', sans-serif;
+                font-weight: 300;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            header {
+                padding: 48px 64px 32px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: baseline;
+                gap: 24px;
+            }
+
+            .logo {
+                font-family: 'DM Serif Display', serif;
+                font-size: 2rem; /* 32px */
+                color: var(--accent);
+                letter-spacing: -0.02em; /* slightly tighter for display text */
+            }
+
+            .tagline {
+                font-size: 0.85rem;
+                color: var(--text-muted);
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+
+            main {
+                flex: 1; /* fills remaining space between header and footer */
+                display: grid;
+                grid-template-columns: 1fr 380px; /* form column | result column */
+                gap: 0;
+                max-width: 1200px; /* cap width on large screens */
+                width: 100%;
+                margin: 0 auto; /* center horizontally */
+                padding: 48px 64px;
+            }
+
+            .form-section {
+                padding-right: 64px;
+                border-right: 1px solid var(--border);
+            }
+
+            .section-label {
+                font-size: 0.7rem;
+                letter-spacing: 0.15em;
+                text-transform: uppercase;
+                color: var(--accent);
+                margin-bottom: 24px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .section-label::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background-color: var(--border);
+            }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 32px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .form-group.full {
+                grid-column: 1 / -1;
+            }
+
+            label {
+                font-size: 0.75rem;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: var(--text-muted);
+            }
+
+            input, select {
+                background: var(--surface2);
+                border: 1px solid var(--border);
+                color: var(--text);
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.95rem;
+                font-weight: 300;
+                padding: 12px 16px;
+                border-radius: var(--radius);
+                outline: none; /* remove default browser focus ring */
+                transition: border-color 0.2s;
+                appearance: none;
+                -webkit-appearance: none; /* remove default browser styling on Safari */
+            }
+
+            input:focus, select:focus {
+                border-color: var(--accent);
+            }
+
+            /* custom dropdown arrow since we removed the default with appearance: none */
+            select {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7570' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 16px center;
+                padding-right: 40px;
+                cursor: pointer;
+            }
+
+            .amenities-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                margin-bottom: 32px;
+            }
+
+            .amenity-chip {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 10px 14px;
+                cursor: pointer;
+                transition: all 0.15s;
+                user-select: none; /* prevent text highlight on repeated clicks */
+            }
+
+            .amenity-chip:hover {
+                border-color: var(--accent-dim);
+            }
+
+            /* applied by JS when checkbox is checked */
+            .amenity-chip.selected {
+                border-color: var(--accent);
+                background: rgba(255, 56, 92, 0.08);
+            }
+
+            .amenity-chip input[type="checkbox"] {
+                display: none;
+            }
+
+            .chip-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%; /* circle */
+                border: 1.5px solid var(--text-dim);
+                transition: all 0.15s;
+                flex-shrink: 0; /* keep dot size fixed */
+            }
+
+            .amenity-chip.selected .chip-dot {
+                background: var(--accent);
+                border-color: var(--accent);
+            }
+
+            .chip-label {
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                transition: color 0.15s;
+            }
+
+            .amenity-chip.selected .chip-label {
+                color: var(--text);
+            }
+
+            .predict-btn {
+                width: 100%;
+                background: var(--accent);
+                color: #ffffff;
+                border: none;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.85rem;
+                font-weight: 500;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                padding: 16px;
+                border-radius: var(--radius);
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .predict-btn:hover {
+                background: var(--accent-dim);
+                transform: translateY(-1px);
+            }
+
+            .predict-btn:active {
+                transform: translateY(0);
+            }
+
+            .predict-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            .result-panel {
+                padding-left: 64px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding-top: 8px;
+            }
+
+            .result-placeholder {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 300px;
+                gap: 16px;
+                opacity: 0.3;
+            }
+
+            .placeholder-icon {
+                font-size: 3rem;
+            }
+
+            .placeholder-text {
+                font-size: 0.85rem;
+                color: var(--text-muted);
+                text-align: center;
+                line-height: 1.6;
+            }
+
+            .result-card {
+                display: none;
+                flex-direction: column;
+                gap: 32px;
+                animation: fadeUp 0.4s ease forwards;
+            }
+
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(12px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .result-card.visible {
+                display: flex;
+            }
+
+            .price-display {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .price-label {
+                font-size: 0.7rem;
+                letter-spacing: 0.15rem;
+                text-transform: uppercase;
+                color: var(--accent);
+            }
+
+            .price-value {
+                font-family: 'DM Serif Display', serif;
+                font-size: 4.5rem;
+                line-height: 1;
+                color: var(--text);
+                letter-spacing: -0.02em;
+            }
+
+            .price-night {
+                font-size: 0.9rem;
+                color: var(--text-muted);
+                margin-top: 4px;
+            }
+
+            .price-range {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .range-label {
+                font-size: 0.7rem;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--text-muted);
+            }
+
+            .range-values {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .range-num {
+                font-family: 'DM Serif Display', serif;
+                font-size: 1.4rem;
+                color: var(--text);
+            }
+
+            .range-bar {
+                flex: 1;
+                height: 2px;
+                background: var(--accent);
+                border-radius: 2px;
+            }
+
+            .model-note {
+                font-size: 0.78rem;
+                color: var(--text-dim);
+                line-height: 1.6;
+                border-left: 2px solid var(--border);
+                padding-left: 16px;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .stat-box {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 16px;
+            }
+
+            .stat-value {
+                font-family: 'DM Serif Display', serif;
+                font-size: 1.5rem;
+                color: var(--accent);
+                margin-bottom: 4px;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--text-muted);
+            }
+
+            .loading {
+                display: none;
+                align-items: center;
+                gap: 12px;
+                color: var(--text-muted);
+                font-size: 0.85rem;
+                padding: 32px 0;
+            }
+
+            .loading.visible {
+                display: flex;
+            }
+
+            .spinner {
+                width: 18px;
+                height: 18px;
+                border: 2px solid var(--border);
+                border-top-color: var(--accent);
+                border-radius: 50%;
+                animation: spin 0.7s linear infinite;
+            }
+
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+
+            footer {
+                padding: 24px 64px;
+                border-top: 1px solid var(--border);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .footer-text {
+                font-size: 0.75rem;
+                color: var(--text-dim);
+            }
+
+            .footer-stats {
+                font-size: 0.75rem;
+                color: var(--text-dim);
+            }
+
+            @media (max-width: 900px) {
+                main {
+                    grid-template-columns: 1fr;
+                    padding: 32px;
+                }
+
+                .form-section {
+                    padding-right: 0;
+                    border-right: none;
+                    border-bottom: 1px solid var(--border);
+                    padding-bottom: 48px;
+                }
+
+                .result-panel {
+                    padding-left: 0;
+                    padding-top: 48px;
+                }
+
+                header {
+                    padding: 32px;
+                }
+
+                footer {
+                    padding: 24px 32px;
+                }
+
+                .amenities-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+        </style>
+    </head>
+    <body>
+
+        <header>
+            <div class="logo">PriceIt</div>
+            <div class="tagline">Airbnb Pricing Intelligence</div>
+        </header>
+
+        <main>
+            <div class="form-section">
+                <div class="section-label">Property Details</div>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>City</label>
+                        <select id="city" disabled>
+                            <option value="Chicago">Chicago</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>State</label>
+                        <select id="state" disabled>
+                            <option value="Illinois">Illinois</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>Neighborhood</label>
+                        <select id="neighbourhood">
+                            <option value="">Select neighborhood</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Property Type</label>
+                        <select id="property_type">
+                            <option value="">Select type...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bedrooms</label>
+                        <input type="number" id="bedrooms" min="0" max="20" step="1" value="1">
+                    </div>
+
+                    <div class="form-group"> 
+                        <label>Bathrooms</label>
+                        <input type="number" id="bathrooms" min="0" max="20" step="0.5" value="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Accommodates</label>
+                        <input type="number" id="accommodates" min="1" max="20" step="1" value="2">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Minimum Nights</label>
+                        <input type="number" id="minimum_nights" min="1" max="365" step="1" value="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instant Bookable</label>
+                        <select id="instant_bookable">
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-label">Amenities</div>
+                <div class="amenities-grid" id="amenities-grid"></div>
+
+                <button class="predict-btn" id="predict-btn" onclick="predict()">
+                    Estimate Nightly Price
+                </button>
+            </div>
+
+            <div class="result-panel">
+                <div class="section-label">Price Estimate</div>
+
+                <div class="result-placeholder" id="placeholder">
+                    <div class="placeholder-icon">◈</div>
+                    <div class="placeholder-text">Fill in your property details<br/>and click estimate</div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    Calculating optimal price...
+                </div>
+
+                <div class="result-card" id="result-card">
+                    <div class="price-display">
+                        <div class="price-label">Recommended Nightly Rate</div>
+                        <div class="price-value" id="price-value">$—</div>
+                        <div class="price-night">per night</div>
+                    </div>
+
+                    <div class="price-range">
+                        <div class="range-label">Competitive Range</div>
+                        <div class="range-values">
+                            <div class="range-num" id="range-low">$—</div>
+                            <div class="range-bar"></div>
+                            <div class="range-num" id="range-high">$—</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value">0.754</div>
+                            <div class="stat-label">Model R²</div>
+                        </div>
+
+                        <div class="stat-box">
+                            <div class="stat-value">±$24</div>
+                            <div class="stat-label">Median Error</div>
+                        </div>
+
+                        <div class="stat-box">
+                            <div class="stat-value">7,740</div>
+                            <div class="stat-label">Listings Trained On</div>
+                        </div>
+
+                        <div class="stat-box">
+                            <div class="stat-value">28.1%</div>
+                            <div class="stat-label">MAPE</div>
+                        </div>
+                    </div>
+
+                    <div class="model-note">
+                        Predictions are based on comparable listings in your area. Pricing above the range may reduce bookings; pricing below may leave revenue on the table.
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-text">PriceIt — Built with XGBoost on real Airbnb listing data</div>
+            <div class="footer-stats">Trained on listings ≤ $528/night · Typical hosts only</div>
+        </footer>
+
+        <script>
+            const AMENITY_LABELS = {
+                pool: "Pool",
+                hot_tub: "Hot Tub",
+                air_conditioning: "A/C",
+                washer: "Washer",
+                dryer: "Dryer",
+                gym: "Gym",
+                balcony: "Balcony",
+                kitchen: "Kitchen",
+                wifi: "WiFi",
+                lake_access: "Lake Access",
+                city_skyline_view: "City View"
+            };
+
+            // load metadata from API
+            async function loadMetadata() {
+                const res = await fetch("/metadata");
+                const data = await res.json();
+
+                // populate neighborhoods
+                const neighbourhoodSel = document.getElementById("neighbourhood");
+                data.neighborhoods.forEach(n => {
+                    const opt = document.createElement("option");
+                    opt.value = n;
+                    opt.textContent = n;
+                    neighbourhoodSel.appendChild(opt);
+                });
+
+                // populate property types
+                const propertyTypeSel = document.getElementById("property_type");
+                data.property_types.forEach(p => {
+                    const opt = document.createElement("option");
+                    opt.value = p;
+                    opt.textContent = p;
+                    propertyTypeSel.appendChild(opt);
+                });
+
+                // build amenity chips
+                const grid = document.getElementById("amenities-grid");
+                data.amenities.forEach(key => {
+                    const chip = document.createElement("label");
+                    chip.className = "amenity-chip";
+                    chip.innerHTML = `
+                        <input type="checkbox" value="${key}">
+                        <div class="chip-dot"></div>
+                        <span class="chip-label">${AMENITY_LABELS[key] || key}</span>
+                    `;
+                    chip.querySelector("input").addEventListener("change", function() {
+                        chip.classList.toggle("selected", this.checked);
+                    });
+                    grid.appendChild(chip);
+                });
+            }
+
+            async function predict() {
+                const btn = document.getElementById("predict-btn");
+                const loading = document.getElementById("loading");
+                const placeholder = document.getElementById("placeholder");
+                const resultCard = document.getElementById("result-card");
+
+                // gather selected amenities
+                const selectedAmenities = Array.from(
+                    document.querySelectorAll("#amenities-grid input:checked")
+                ).map(el => el.value);
+
+                const payload = {
+                    neighbourhood: document.getElementById("neighbourhood").value,
+                    property_type: document.getElementById("property_type").value,
+                    bedrooms: parseFloat(document.getElementById("bedrooms").value),
+                    bathrooms: parseFloat(document.getElementById("bathrooms").value),
+                    accommodates: parseFloat(document.getElementById("accommodates").value),
+                    minimum_nights: parseFloat(document.getElementById("minimum_nights").value),
+                    instant_bookable: parseInt(document.getElementById("instant_bookable").value),
+                    amenities: selectedAmenities
+                };
+
+                if (!payload.neighbourhood || !payload.property_type) {
+                    alert("Please select a neighborhood and property type.");
+                    return;
+                }
+
+                // show loading
+                btn.disabled = true;
+                placeholder.style.display = "none";
+                resultCard.classList.remove("visible");
+                loading.classList.add("visible");
+
+                // send payload
+                try {
+                    const res = await fetch("/predict", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+
+                    document.getElementById("price-value").textContent = `$${data.predicted_price}`;
+                    document.getElementById("range-low").textContent = `$${Math.max(0, data.range_low)}`;
+                    document.getElementById("range-high").textContent = `$${data.range_high}`;
+
+                    loading.classList.remove("visible");
+                    resultCard.classList.add("visible");
+                } catch (err) {
+                    loading.classList.remove("visible");
+                    placeholder.style.display = "flex";
+                    alert("Something went wrong. Is the server running?");
+                }
+
+                btn.disabled = false;
+            }
+
+            loadMetadata();
+        </script>
+    </body>
+</html>
