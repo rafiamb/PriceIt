@@ -10,7 +10,7 @@
 
 Airbnb hosts often struggle to determine the optimal nightly price for their listing. Price too high and you lose bookings. Price too low and you leave money on the table.
 
-**PriceIt** predicts a competitive nightly rate for Airbnb properties based on location, amenities, and property features — helping hosts maximize revenue and stay competitive.
+PriceIt predicts a competitive nightly rate for Airbnb properties based on location, amenities, and property features, helping hosts maximize revenue and stay competitive.
 
 ---
 
@@ -43,7 +43,7 @@ Trained on **7,740 Chicago Airbnb listings** scraped from Inside Airbnb. Listing
 
 ### Why Median Absolute Error?
 
-Mean Absolute Error ($39.92) and RMSE ($62.27) are both inflated by luxury outliers in the dataset — listings priced at $500–$528/night where even a good prediction can be off by a large dollar amount. Median Absolute Error ($24.18) is the most honest metric for this use case because it reflects what a **typical host** at the median price of $152/night would actually experience. MAPE (25.3%) provides additional context as a percentage based metric that is scale-independent.
+Mean Absolute Error ($39.92) and RMSE ($62.27) are both inflated by luxury outliers in the dataset, specifically listings priced at $500–$528/night where even a good prediction can be off by a large dollar amount. Median Absolute Error ($24.18) is the most honest metric for this use case because it reflects what a typical host at the median price of $152/night would actually experience. MAPE (25.3%) provides additional context as a percentage-based metric that is scale-independent.
 
 ---
 
