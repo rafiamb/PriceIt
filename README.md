@@ -8,13 +8,7 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![Render](https://img.shields.io/badge/Render-46E3B7?logo=render&logoColor=black)
 
-Airbnb hosts often struggle to determine the optimal nightly price for their listing. Price too high and you lose bookings. Price too low and you leave money on the table.
-
-PriceIt predicts a competitive nightly rate for Airbnb properties based on location, amenities, and property features, helping hosts maximize revenue and stay competitive.
-
----
-
-## About
+Airbnb hosts often struggle to determine the optimal nightly price for their listing. Price too high and you lose bookings. Price too low and you leave money on the table. PriceIt predicts a competitive nightly rate for Airbnb properties based on location, amenities, and property features, helping hosts maximize revenue and stay competitive.
 
 Built as a portfolio project to demonstrate end-to-end data science skills, from web scraping and feature engineering to model training and deployment.
 
