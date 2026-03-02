@@ -2,11 +2,8 @@
 ### Airbnb Pricing Intelligence for Chicago Hosts
 
 ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
-![XGBoost](https://img.shields.io/badge/XGBoost-189ABD?logo=xgboost&logoColor=white)
 ![Scikit-Learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)
-![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
-![Render](https://img.shields.io/badge/Render-46E3B7?logo=render&logoColor=black)
 
 Airbnb hosts often struggle to determine the optimal nightly price for their listing. Price too high and you lose bookings. Price too low and you leave money on the table. PriceIt predicts a competitive nightly rate for Airbnb properties based on location, amenities, and property features, helping hosts maximize revenue and stay competitive.
 
